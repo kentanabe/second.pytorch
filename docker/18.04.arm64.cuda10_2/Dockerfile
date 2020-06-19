@@ -47,6 +47,8 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         python3 \
         python3-dev \
         python3-pip \
+	libfreetype6-dev \
+	libpng-dev \
         && \
     $PIP_INSTALL \
         -U pip \
