@@ -7,17 +7,15 @@
 # pytorch       latest (pip)
 # ==================================================================
 
-FROM nvidia/l4t-ml:r32.4.2-py3
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
-    GIT_CLONE="git clone --depth 10" && \
-    rm -rf /var/lib/apt/lists/* \
-           /etc/apt/sources.list.d/cuda.list \
-           /etc/apt/sources.list.d/nvidia-ml.list && \
-    apt-get update && \
+FROM nvcr.io/nvidia/l4t-ml:r32.4.2-py3
+
 # ==================================================================
 # tools
 # ------------------------------------------------------------------
+RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
+    PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
+    GIT_CLONE="git clone --depth 10" && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         build-essential \
         ca-certificates \
@@ -32,22 +30,27 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         libboost-all-dev \
         libgeos-dev \
         && \
+    apt-get clean && \
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 # ==================================================================
 # python
 # ------------------------------------------------------------------
-    LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config
+RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
+    PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
+    GIT_CLONE="git clone --depth 10" && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         software-properties-common \
         && \
-    add-apt-repository ppa:deadsnakes/ppa && \
-    apt-get update && \
     DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
         python3 \
         python3-dev \
-        python3-pip
+        python3-pip \
         && \
     $PIP_INSTALL \
         -U pip \
+	&& \
     $PIP_INSTALL \
         setuptools \
         && \
@@ -57,23 +60,17 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         matplotlib \
         Cython \
         && \
-    $PIP_INSTALL \
-        shapely \
-        scikit-image==0.16.2 \
-        numba \
-        sparsehash \
-        fire \
-        tensorboardX \
-        && \
-# ==================================================================
-# config & cleanup
-# ------------------------------------------------------------------
     ldconfig && \
     apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 
+# ==================================================================
+# PointPillars
+# ------------------------------------------------------------------
+
 RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
+    LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config \
     $PIP_INSTALL \
         shapely \
         scikit-image==0.16.2 \
@@ -85,6 +82,18 @@ RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
         protobuf \
         pillow \
         && \
+    ldconfig && \
+    apt-get clean && \
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+
+# ==================================================================
+# VS Code
+# ------------------------------------------------------------------
+RUN curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb \
+    -o code-oss_1.32.3-arm64.deb && \
+    dpkg -i code-oss_1.32.3-arm64.deb \
+    &&
 
 # WORKDIR /root
 # RUN git clone https://github.com/traveller59/second.pytorch.git --depth 10
