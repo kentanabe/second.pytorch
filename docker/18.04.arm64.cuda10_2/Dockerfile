@@ -71,7 +71,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
 # PointPillars
 # ------------------------------------------------------------------
 
-RUN PIP_INSTALL="python -m pip --no-cache-dir install --upgrade" && \
+RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config \
     $PIP_INSTALL \
         shapely \
