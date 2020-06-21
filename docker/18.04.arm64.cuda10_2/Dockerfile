@@ -21,15 +21,17 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         ca-certificates \
         cmake \
         wget \
+	curl \
         git \
         vim \
         fish \
         libsparsehash-dev \
         make \
-        llvm-9 \
+        llvm-9-dev \
         libboost-all-dev \
         libgeos-dev \
         && \
+    ldconfig && \
     apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
@@ -60,7 +62,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         numpy \
         scipy \
         matplotlib \
-        Cython \
+	Cython \
         && \
     ldconfig && \
     apt-get clean && \
@@ -92,11 +94,22 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
 # ==================================================================
 # VS Code
 # ------------------------------------------------------------------
+RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+    libnotify4 \
+    libsecret-1-0 \
+    libxss1 \
+    && \
+    ldconfig && \
+    apt-get clean && \
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+
 RUN curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb \
     -o code-oss_1.32.3-arm64.deb && \
-    dpkg -i code-oss_1.32.3-arm64.deb \
-    &&
-
+    dpkg -i code-oss_1.32.3-arm64.deb
+    
 # WORKDIR /root
 # RUN git clone https://github.com/traveller59/second.pytorch.git --depth 10
 # RUN git clone https://github.com/traveller59/SparseConvNet.git --depth 10
