@@ -23,8 +23,8 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         wget \
 	curl \
         git \
+	bash \
         vim \
-        fish \
         libsparsehash-dev \
         make \
         llvm-9-dev \
@@ -70,6 +70,24 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 
 # ==================================================================
+# VS Code
+# ------------------------------------------------------------------
+RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
+    apt-get update && \
+    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
+        libnotify4 \
+        libsecret-1-0 \
+        libxss1 \
+        && \
+    ldconfig && \
+    apt-get clean && \
+    apt-get autoremove && \
+    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+RUN curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb \
+        -o code-oss_1.32.3-arm64.deb && \
+    dpkg -i code-oss_1.32.3-arm64.deb
+	
+# ==================================================================
 # PointPillars
 # ------------------------------------------------------------------
 
@@ -91,36 +109,20 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 
-# ==================================================================
-# VS Code
-# ------------------------------------------------------------------
-RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
-    apt-get update && \
-    DEBIAN_FRONTEND=noninteractive $APT_INSTALL \
-    libnotify4 \
-    libsecret-1-0 \
-    libxss1 \
-    && \
-    ldconfig && \
-    apt-get clean && \
-    apt-get autoremove && \
-    rm -rf /var/lib/apt/lists/* /tmp/* ~/*
+WORKDIR /root
+RUN git clone https://github.com/traveller59/second.pytorch.git --depth 10
+RUN git clone https://github.com/traveller59/SparseConvNet.git --depth 10 && \
+    pushd ./SparseConvNet && \
+    python setup.py install && \
+    popd && \
+    rm -rf SparseConvNet
+ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
+ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
+ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
+ENV PYTHONPATH=/root/second.pytorch
+ 
+VOLUME ["/root/data"]
+VOLUME ["/root/model"]
+WORKDIR /root/second.pytorch/second
 
-RUN curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_1.32.3-arm64.deb \
-    -o code-oss_1.32.3-arm64.deb && \
-    dpkg -i code-oss_1.32.3-arm64.deb
-    
-# WORKDIR /root
-# RUN git clone https://github.com/traveller59/second.pytorch.git --depth 10
-# RUN git clone https://github.com/traveller59/SparseConvNet.git --depth 10
-# RUN cd ./SparseConvNet && python setup.py install && cd .. && rm -rf SparseConvNet
-# ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
-# ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
-# ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
-# ENV PYTHONPATH=/root/second.pytorch
-# 
-# VOLUME ["/root/data"]
-# VOLUME ["/root/model"]
-# WORKDIR /root/second.pytorch/second
-
-ENTRYPOINT ["fish"]
+ENTRYPOINT ["bash"]
