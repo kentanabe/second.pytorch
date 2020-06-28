@@ -168,3 +168,39 @@ python pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_1
 
 * Detection result will saved in model_dir/eval_results/step_xxx.
 * By default, results are stored as a result.pkl file. To save as official KITTI label format use --pickle_result=False.
+
+### Build Dcoker image
+
+#### 1. Set nvidia docker runtime as default
+
+```
+*** daemon.json~        2018-03-07 13:06:38.000000000 +0900
+--- daemon.json 2020-06-28 14:55:33.341543078 +0900
+***************
+*** 1,4 ****
+--- 1,5 ----
+  {
++     "default-runtime": "nvidia",
+      "runtimes": {
+          "nvidia": {
+              "path": "nvidia-container-runtime",
+```
+
+```bash
+sudo service docker restart
+```
+
+#### 2. Build docker image
+
+```bash
+docker build -t <TAG NAME> docker/18.04.arm64.cuda10_2/
+```
+
+#### 3. Run docker image
+
+```bash
+docker run --gpus all --network host \
+    -it -e DISPLAY=$DISPLAY \
+    -v /tmp/.X11-unix/:/tmp/.X11-unix \
+    <TAG NAME>
+```

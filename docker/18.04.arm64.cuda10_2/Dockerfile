@@ -7,7 +7,8 @@
 # pytorch       latest (pip)
 # ==================================================================
 
-FROM nvcr.io/nvidia/l4t-ml:r32.4.2-py3
+FROM nvcr.io/nvidia/l4t-pytorch:r32.4.2-pth1.5-py3
+
 
 # ==================================================================
 # tools
@@ -88,34 +89,46 @@ RUN curl -L https://github.com/toolboc/vscode/releases/download/1.32.3/code-oss_
     dpkg -i code-oss_1.32.3-arm64.deb
 	
 # ==================================================================
-# PointPillars
+# PIP for PointPillars
 # ------------------------------------------------------------------
 
 RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config \
     $PIP_INSTALL \
-        shapely \
-        scikit-image==0.16.2 \
-        numba \
-        sparsehash \
         fire \
-        tensorboardX \
+	numba \
+	pillow \
+	protobuf \
         pybind11 \
-        protobuf \
-        pillow \
+        scikit-image==0.16.2 \
+        shapely \
+	sparsehash \
+        tensorboardX \
         && \
     ldconfig && \
     apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
 
+# ==================================================================
+# Cuda
+# ------------------------------------------------------------------
+
+
+# ==================================================================
+# PointPillars
+# ------------------------------------------------------------------
+
 WORKDIR /root
-RUN git clone https://github.com/traveller59/second.pytorch.git --depth 10
-RUN git clone https://github.com/traveller59/SparseConvNet.git --depth 10 && \
-    pushd ./SparseConvNet && \
-    python setup.py install && \
-    popd && \
-    rm -rf SparseConvNet
+RUN git clone https://github.com/kentanabe/second.pytorch.git
+RUN git clone https://github.com/kentanabe/SparseConvNet.git && \
+    cd ./SparseConvNet && \
+    git pull && \
+    git checkout 1-compile-error-with-python3 && \
+    python3 setup.py install && \
+    cd .. && \
+    rm -rf SparseConvNet && \
+    ls
 ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
 ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
 ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
