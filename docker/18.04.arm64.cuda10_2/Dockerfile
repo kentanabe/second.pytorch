@@ -120,18 +120,18 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
 # ------------------------------------------------------------------
 
 WORKDIR /root
-RUN git clone https://github.com/kentanabe/second.pytorch.git
 RUN git clone https://github.com/kentanabe/SparseConvNet.git && \
     cd ./SparseConvNet && \
     git pull && \
-    git checkout 1-compile-error-with-python3 && \
+    git checkout a0b9bbbbee335eeb98aba55377b8835bfde1fb26 && \
     python3 setup.py install && \
     cd .. && \
     rm -rf SparseConvNet && \
     ls
-ENV NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
-ENV NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
-ENV NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
+RUN git clone https://github.com/kentanabe/second.pytorch.git && \
+    cd second.pytorch.git && \
+    git pull && \
+    cd ..
 ENV PYTHONPATH=/root/second.pytorch
  
 VOLUME ["/root/data"]
