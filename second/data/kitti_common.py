@@ -149,7 +149,8 @@ def get_kitti_image_info(path,
             if relative_path:
                 img_path = str(root_path / img_path)
             image_info['img_shape'] = np.array(
-                io.imread(img_path).shape[:2], dtype=np.int32)
+                io.imread(img_path, plugin='matplotlib').shape[:2],
+                dtype=np.int32)
         if label_info:
             label_path = get_label_path(idx, path, training, relative_path)
             if relative_path:
