@@ -129,7 +129,7 @@ RUN git clone https://github.com/kentanabe/SparseConvNet.git && \
     rm -rf SparseConvNet && \
     ls
 RUN git clone https://github.com/kentanabe/second.pytorch.git && \
-    cd second.pytorch.git && \
+    cd second.pytorch && \
     git pull && \
     cd ..
 ENV PYTHONPATH=/root/second.pytorch
