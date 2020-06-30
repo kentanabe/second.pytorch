@@ -196,7 +196,29 @@ sudo service docker restart
 docker build -t <TAG NAME> docker/18.04.arm64.cuda10_2/
 ```
 
-#### 3. Run docker image
+#### 3. Add swap are
+
+```bash
+sudo dd if=/dev/zero of=/swap bs=1G count=8
+sudo chmod 600 /swap
+sudo mkswap /swap
+sudo swapon /swap
+```
+
+##### Modify fstab
+
+```bash
+sudo sh -c "echo '/swap none swap sw 0 0' >> /etc/fstab"
+```
+
+##### Disable swappiness
+
+```bash
+sudo sh -c "echo 'vm.swappiness=0' >> /etc/sysctl.conf"
+sudo sysctl -p
+```
+
+#### 4. Run docker image
 
 ```bash
 docker run --gpus all --network host \
