@@ -97,7 +97,7 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     $PIP_INSTALL \
         fire \
 	numba \
-	pillow \
+	pillow==7.1.2 \
 	protobuf \
         pybind11 \
         scikit-image==0.16.2 \
