@@ -31,6 +31,7 @@ RUN APT_INSTALL="apt-get install -y --no-install-recommends" && \
         llvm-9-dev \
         libboost-all-dev \
         libgeos-dev \
+	time \
         && \
     ldconfig && \
     apt-get clean && \
@@ -109,33 +110,5 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     apt-get clean && \
     apt-get autoremove && \
     rm -rf /var/lib/apt/lists/* /tmp/* ~/*
-
-# ==================================================================
-# Cuda
-# ------------------------------------------------------------------
-
-
-# ==================================================================
-# PointPillars
-# ------------------------------------------------------------------
-
-WORKDIR /root
-RUN git clone https://github.com/kentanabe/SparseConvNet.git && \
-    cd ./SparseConvNet && \
-    git pull && \
-    git checkout a0b9bbbbee335eeb98aba55377b8835bfde1fb26 && \
-    python3 setup.py install && \
-    cd .. && \
-    rm -rf SparseConvNet && \
-    ls
-RUN git clone https://github.com/kentanabe/second.pytorch.git && \
-    cd second.pytorch && \
-    git pull && \
-    cd ..
-ENV PYTHONPATH=/root/second.pytorch
- 
-VOLUME ["/root/data"]
-VOLUME ["/root/model"]
-WORKDIR /root/second.pytorch/second
 
 ENTRYPOINT ["bash"]
