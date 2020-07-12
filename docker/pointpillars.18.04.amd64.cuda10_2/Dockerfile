@@ -5,7 +5,7 @@
 # pytorch       latest (pip)
 # ==================================================================
 
-FROM tanabeken/public:base.ubuntu18.04.arm64.20200712
+FROM tanabeken/public:base.ubuntu18.04.amd64.20200712
 
 # ==================================================================
 # PointPillars
