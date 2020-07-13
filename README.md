@@ -19,9 +19,23 @@ This is not an official nuTonomy codebase, but it can be used to match the publi
 This is a fork of [SECOND for KITTI object detection](https://github.com/traveller59/second.pytorch) and the relevant
 subset of the original README is reproduced here.
 
+### Docker Environments
+
+If you do not waste time on pointpillars envs, please pull my docker virtual environments :
+
+#### Jetson Xavier NX
+
+```bash
+docker pull tanabeken/public:pointpillars.ubuntu18.04.arm64.cuda10_2.jetson-xaviernx.20200712
+```
+
+#### AMD64(x86_64) PC with NVIDIA GPU
+
+T.B.D.
+
 ### Code Support
 
-ONLY supports python 3.6+, pytorch 0.4.1+. Code has only been tested on Ubuntu 16.04/18.04.
+ONLY supports python 3.7, pytorch 1.5.0. Code has only been tested on Ubuntu 18.04.
 
 ### Install
 
@@ -35,50 +49,78 @@ git clone https://github.com/nutonomy/second.pytorch.git
 
 It is recommend to use the Anaconda package manager.
 
-First, use Anaconda to configure as many packages as possible.
+First, install packages via apt.
 ```bash
-conda create -n pointpillars python=3.7 anaconda
-source activate pointpillars
-conda install shapely pybind11 protobuf scikit-image numba pillow
-conda install pytorch torchvision -c pytorch
-conda install google-sparsehash -c bioconda
+sudo apt-get update
+sudo apt-get install -y --no-install-recommends \
+	build-essential \
+	ca-certificates \
+	cmake \
+	wget \
+	curl \
+	git \
+	bash \
+	vim \
+	libsparsehash-dev \
+	make \
+	llvm-9-dev \
+	libboost-all-dev \
+	libgeos-dev \
+	time
+sudo apt-get install -y --no-install-recommends \
+	software-properties-common
+sudo apt-get install -y --no-install-recommends \
+	software-properties-common
+        python3 \
+        python3-dev \
+        python3-pip \
+	libfreetype6-dev \
+	libpng-dev
 ```
 
-Then use pip for the packages missing from Anaconda.
+Then use pip for python packages.
 ```bash
-pip install --upgrade pip
-pip install fire tensorboardX
+python3 -m pip --no-cache-dir install --upgrade --user \
+	-U pip
+python3 -m pip --no-cache-dir install --upgrade --user \
+	setuptools
+python3 -m pip --no-cache-dir install --upgrade --user \
+	numpy \
+        scipy \
+        matplotlib \
+	Cython
+LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config \
+	python3 -m pip --no-cache-dir install --upgrade --user \
+	        fire \
+		numba==0.43.1 \
+		pillow==7.1.2 \
+		protobuf \
+	        pybind11 \
+	        scikit-image==0.16.2 \
+	        shapely \
+		sparsehash \
+	        tensorboardX
 ```
 
 Finally, install SparseConvNet. This is not required for PointPillars, but the general SECOND code base expects this
 to be correctly configured. 
 ```bash
-git clone git@github.com:facebookresearch/SparseConvNet.git
-cd SparseConvNet/
-bash build.sh
-# NOTE: if bash build.sh fails, try bash develop.sh instead
-```
-
-Additionally, you may need to install Boost geometry:
-
-```bash
-sudo apt-get install libboost-all-dev
-```
-
-
-#### 3. Setup cuda for numba
-
-You need to add following environment variables for numba to ~/.bashrc:
-
-```bash
-export NUMBAPRO_CUDA_DRIVER=/usr/lib/x86_64-linux-gnu/libcuda.so
-export NUMBAPRO_NVVM=/usr/local/cuda/nvvm/lib64/libnvvm.so
-export NUMBAPRO_LIBDEVICE=/usr/local/cuda/nvvm/libdevice
+git clone https://github.com/kentanabe/SparseConvNet.git
+cd ./SparseConvNet
+git pull
+git checkout a0b9bbbbee335eeb98aba55377b8835bfde1fb26
+python3 setup.py install
+cd ..
+rm -rf SparseConvNet
 ```
 
 #### 4. PYTHONPATH
 
 Add second.pytorch/ to your PYTHONPATH.
+```bash
+export PYTHONPATH=${HOME}/second.pytorch:${PYTHONPATH}
+```
+
 
 ### Prepare dataset
 
@@ -152,7 +194,7 @@ eval_input_reader: {
 
 ```bash
 cd ~/second.pytorch/second
-python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
+python3 ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
 * If you want to train a new model, make sure "/path/to/model_dir" doesn't exist.
@@ -167,15 +209,15 @@ python ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_1
 
 ```bash
 cd ~/second.pytorch/second/
-python pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
+python3 pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
 * Detection result will saved in model_dir/eval_results/step_xxx.
 * By default, results are stored as a result.pkl file. To save as official KITTI label format use --pickle_result=False.
 
-### Build Dcoker image
+### Build Docker image
 
-#### 1. Set nvidia docker runtime as default
+#### 1. Set nvidia docker runtime as default to use cuda tools from docker build.
 
 ```
 *** daemon.json~        2018-03-07 13:06:38.000000000 +0900
@@ -196,11 +238,18 @@ sudo service docker restart
 
 #### 2. Build docker image
 
+##### Jetson Xavier NX
+
 ```bash
-docker build -t <TAG NAME> docker/18.04.arm64.cuda10_2/
+docker build -t <TAG NAME> docker/pointpillars.18.04.arm64.cuda10_2/
+```
+##### AMD64(x86_64) PC with NVIDIA GPU
+
+```bash
+docker build -t <TAG NAME> docker/pointpillars.18.04.amd64.cuda10_2/
 ```
 
-#### 3. Add swap are
+#### 3. Add swap for Jetson Xavier NX
 
 ```bash
 sudo dd if=/dev/zero of=/swap bs=1G count=8
@@ -229,5 +278,6 @@ docker run --gpus all --network host \
     -it -e DISPLAY=$DISPLAY \
     -v /tmp/.X11-unix/:/tmp/.X11-unix \
     -v <KITTI_DATASET_ROOT>:/data/sets/kitti_second/ \
+    -v ${HOME}/pointpillars/model:/root/model \
     <TAG NAME>
 ```
