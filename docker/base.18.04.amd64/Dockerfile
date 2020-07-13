@@ -76,7 +76,7 @@ RUN PIP_INSTALL="python3 -m pip --no-cache-dir install --upgrade" && \
     LLVM_CONFIG=/usr/lib/llvm-9/bin/llvm-config \
     $PIP_INSTALL \
         fire \
-	numba \
+	numba==0.43.1 \
 	pillow==7.1.2 \
 	protobuf \
         pybind11 \
