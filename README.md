@@ -26,7 +26,7 @@ If you do not waste time on pointpillars envs, please pull my docker virtual env
 #### Jetson Xavier NX
 
 ```bash
-docker pull tanabeken/public:pointpillars.ubuntu18.04.arm64.cuda10_2.jetson-xaviernx.20200712
+docker pull tanabeken/public:pointpillars.ubuntu18.04.arm64.cuda10_2.jetson-xaviernx.20200715
 ```
 
 #### AMD64(x86_64) PC with NVIDIA GPU
