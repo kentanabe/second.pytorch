@@ -194,7 +194,7 @@ eval_input_reader: {
 
 ```bash
 cd ~/second.pytorch/second
-python3 ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
+python3 -W ignore::UserWarning ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
 * If you want to train a new model, make sure "/path/to/model_dir" doesn't exist.
@@ -209,7 +209,7 @@ python3 ./pytorch/train.py train --config_path=./configs/pointpillars/car/xyres_
 
 ```bash
 cd ~/second.pytorch/second/
-python3 pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
+python3 -W ignore::UserWarning pytorch/train.py evaluate --config_path= configs/pointpillars/car/xyres_16.proto --model_dir=/path/to/model_dir
 ```
 
 * Detection result will saved in model_dir/eval_results/step_xxx.
